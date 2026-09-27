@@ -1,6 +1,6 @@
 {
   "name": "@antora-supplemental/asciidoc-link-validator",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI + library: validate outbound http(s) links in AsciiDoc and HTML (suppressions, baseline deltas, reports). No Antora dependency.",
   "license": "MIT",
   "author": "Ryan Johnson (https://github.com/AMDphreak)",
@@ -36,7 +36,8 @@
     "CHANGELOG.adoc",
     "LICENSE",
     ".antora-link-suppressions.example.yml",
-    "DESIGN.adoc"
+    "DESIGN.adoc",
+    "examples/**/*"
   ],
   "engines": {
     "node": ">=18"

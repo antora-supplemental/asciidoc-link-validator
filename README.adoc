@@ -32,7 +32,7 @@ Primary (GitHub SemVer URL — recommended for Antora / pnpm):
 
 [source,bash]
 ----
-pnpm add -D github:antora-supplemental/asciidoc-link-validator#v0.1.0
+pnpm add -D github:antora-supplemental/asciidoc-link-validator#v0.2.0
 ----
 
 Alternate (track main):
@@ -143,6 +143,17 @@ The generated triage HTML stores only that public config. Mail clients get a pre
 == License
 
 MIT — see link:LICENSE[].
+
+== Thin CI dispatch proxy
+
+The triage **Check now (CI)** button must call a *public* URL. Ship a thin proxy that holds the GitHub token server-side:
+
+* Example (Express + Cloudflare Workers): https://github.com/antora-supplemental/asciidoc-link-validator/tree/main/examples/dispatch-proxy[`asciidoc-link-validator/examples/dispatch-proxy`]
+* Set playbook `ciTrigger.dispatchUrl` / `statusUrl` to that proxy's `/dispatch` and `/status`.
+* **Never** put `GITHUB_TOKEN` in static HTML.
+
+Env vars and wiring: see the proxy README in that folder.
+
 
 == Contact
 

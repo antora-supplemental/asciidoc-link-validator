@@ -1,0 +1,18 @@
+{
+  "name": "link-validator-dispatch-proxy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Thin proxy: public POST -> GitHub workflow_dispatch (token stays server-side). Optional Link-inator probe.",
+  "license": "MIT",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "start:workers": "echo Deploy worker.js to Cloudflare Workers (see README)."
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

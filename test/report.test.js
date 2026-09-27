@@ -2,7 +2,10 @@
 
 const { describe, it } = require('node:test')
 const assert = require('node:assert/strict')
-const { buildReport, formatMarkdown, formatTextEmail } = require('../lib/report.js')
+const fs = require('node:fs')
+const os = require('node:os')
+const ospath = require('node:path')
+const { buildReport, buildReportHistory, formatMarkdown, formatTextEmail } = require('../lib/report.js')
 
 describe('report diff', () => {
   it('computes newlyInvalid, stillInvalid, recovered', () => {
@@ -41,5 +44,31 @@ describe('report diff', () => {
     const text = formatTextEmail(report)
     assert.match(text, /support@devcentr\.org/)
     assert.match(text, /Invalid: 1/)
+  })
+})
+
+describe('report history', () => {
+  it('lists archived report-*.json newest first', () => {
+    const dir = fs.mkdtempSync(ospath.join(os.tmpdir(), 'lv-hist-'))
+    try {
+      const older = {
+        generatedAt: '2026-01-01T00:00:00.000Z',
+        summary: { invalid: 3 },
+      }
+      const newer = {
+        generatedAt: '2026-06-01T12:00:00.000Z',
+        summary: { invalid: 1 },
+      }
+      fs.writeFileSync(ospath.join(dir, 'report-2026-01-01T00-00-00-000Z.json'), JSON.stringify(older))
+      fs.writeFileSync(ospath.join(dir, 'report-2026-06-01T12-00-00-000Z.json'), JSON.stringify(newer))
+      fs.writeFileSync(ospath.join(dir, 'report.json'), JSON.stringify({ summary: { invalid: 0 } }))
+      const hist = buildReportHistory(dir, { limit: 10 })
+      assert.equal(hist.length, 2)
+      assert.equal(hist[0].invalid, 1)
+      assert.equal(hist[1].invalid, 3)
+      assert.match(hist[0].href, /report-2026-06-01/)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

@@ -18,3 +18,5 @@
 !.github/
 !.github/**
 !DESIGN.adoc
+!examples/
+!examples/**

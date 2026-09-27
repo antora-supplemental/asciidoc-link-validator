@@ -2,10 +2,14 @@
 
 == Unreleased
 
+== 0.2.0 — 2026-09-27
+
+* `buildReportHistory`: scan archived `report-*.json` files into `meta.reportHistory` entries for the triage UI.
+* `examples/dispatch-proxy`: thin Express (+ Cloudflare Workers) stub for public triage `POST` → GitHub `workflow_dispatch` (token server-side only); optional Link-inator `/probe`.
 * Report **groupings** in JSON: `byDestination`, `bySourcePage`, `byStatus`, `byHost`, with auto default (destination when host clusters dominate; else source page).
 * Shared **triage actions** helper (`lib/triage-actions.js`): mailto (percent-encoded), copy payloads, CI trigger config shape (public dispatch/proxy only — no secrets in HTML).
 * Triage HTML: group-by select + optional CI "Check now" button hooks.
-* `DESIGN.adoc`: packaging split, Link-inator future package, registry metadata notes.
+* `DESIGN.adoc`: packaging split, Link-inator notes, registry metadata notes.
 
 == 0.1.0 — 2026-09-27
 
