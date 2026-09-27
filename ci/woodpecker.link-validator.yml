@@ -1,0 +1,11 @@
+# Woodpecker CI example
+when:
+  event: [push, pull_request, manual]
+
+steps:
+  - name: link-validator
+    image: node:20-bookworm
+    commands:
+      - corepack enable
+      - if [ -f package.json ]; then pnpm install || npm install; fi
+      - node bin/asciidoc-link-validator.js --root . --out link-report.json --fail

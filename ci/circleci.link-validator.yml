@@ -1,0 +1,20 @@
+# CircleCI example — merge into .circleci/config.yml
+version: 2.1
+jobs:
+  link-validator:
+    docker:
+      - image: cimg/node:20.11
+    steps:
+      - checkout
+      - run:
+          name: AsciiDoc Link Validator
+          command: |
+            corepack enable
+            if [ -f package.json ]; then pnpm install || npm install; fi
+            node bin/asciidoc-link-validator.js --root . --out link-report.json --fail
+      - store_artifacts:
+          path: link-report.json
+workflows:
+  validate-links:
+    jobs:
+      - link-validator

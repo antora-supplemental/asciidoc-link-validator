@@ -1,0 +1,79 @@
+name: Antora AsciiDoc Link Validator
+description: Validate outbound http(s) links in AsciiDoc or built HTML via @antora-supplemental/asciidoc-link-validator
+author: antora-supplemental
+branding:
+  icon: link
+  color: blue
+
+inputs:
+  root:
+    description: Directory to scan for .adoc files
+    required: false
+    default: '.'
+  html:
+    description: Directory to scan for built HTML (optional)
+    required: false
+    default: ''
+  fail:
+    description: Fail the job when invalid links remain
+    required: false
+    default: 'true'
+  suppressions:
+    description: Path to suppressions YAML
+    required: false
+    default: '.antora-link-suppressions.yml'
+  baseline:
+    description: Path to baseline JSON
+    required: false
+    default: ''
+  write-baseline:
+    description: Write/update the baseline file from the current invalid set
+    required: false
+    default: 'false'
+  concurrency:
+    description: Parallel URL checks
+    required: false
+    default: '8'
+  format:
+    description: stdout format (json|md|text)
+    required: false
+    default: 'json'
+  out:
+    description: Report JSON output path
+    required: false
+    default: 'link-report.json'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Run AsciiDoc Link Validator
+      shell: bash
+      run: |
+        set -euo pipefail
+        ARGS=(--root "${{ inputs.root }}" --concurrency "${{ inputs.concurrency }}" --format "${{ inputs.format }}" --out "${{ inputs.out }}")
+        if [ -n "${{ inputs.html }}" ]; then ARGS+=(--html "${{ inputs.html }}"); fi
+        if [ -n "${{ inputs.suppressions }}" ]; then ARGS+=(--suppressions "${{ inputs.suppressions }}"); fi
+        if [ -n "${{ inputs.baseline }}" ]; then ARGS+=(--baseline "${{ inputs.baseline }}"); fi
+        if [ "${{ inputs.write-baseline }}" = "true" ]; then ARGS+=(--write-baseline); fi
+        if [ "${{ inputs.fail }}" = "true" ]; then ARGS+=(--fail); fi
+
+        if command -v pnpm >/dev/null 2>&1 && [ -f package.json ] && grep -q '@antora-supplemental/asciidoc-link-validator' package.json 2>/dev/null; then
+          pnpm exec asciidoc-link-validator "${ARGS[@]}"
+        elif [ -f "${{ github.action_path }}/bin/asciidoc-link-validator.js" ]; then
+          node "${{ github.action_path }}/bin/asciidoc-link-validator.js" "${ARGS[@]}"
+        else
+          npx --yes @antora-supplemental/asciidoc-link-validator "${ARGS[@]}"
+        fi
+
+    - name: Upload report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: link-validator-report
+        path: ${{ inputs.out }}
+        if-no-files-found: warn

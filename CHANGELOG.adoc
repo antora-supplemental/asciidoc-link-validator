@@ -1,0 +1,13 @@
+= Changelog
+
+== Unreleased
+
+* Nothing yet.
+
+== 0.1.0 — 2026-09-27
+
+* Initial release: extract http(s) URLs from HTML and AsciiDoc; HEAD→GET checker with concurrency, retries, and status classification.
+* Suppressions file (exact / glob / regex + reason + expiry).
+* Report JSON with baseline deltas (`newlyInvalid`, `stillInvalid`, `recovered`); markdown and plain-text email formatters.
+* CLI `asciidoc-link-validator` for `.adoc` / HTML trees.
+* CI templates for GitHub, GitLab, Azure, Bitbucket, CircleCI, Jenkins, Woodpecker, Gitea; stubs for other providers.

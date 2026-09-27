@@ -1,0 +1,9 @@
+# Drone CI stub
+kind: pipeline
+type: docker
+name: link-validator
+steps:
+  - name: check
+    image: node:20
+    commands:
+      - node bin/asciidoc-link-validator.js --root . --out link-report.json --fail

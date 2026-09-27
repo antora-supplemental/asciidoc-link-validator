@@ -1,0 +1,17 @@
+# Semaphore stub — use a Node agent and:
+#   node bin/asciidoc-link-validator.js --root . --out link-report.json --fail
+version: v1.0
+name: AsciiDoc Link Validator
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+blocks:
+  - name: Validate links
+    task:
+      jobs:
+        - name: link-validator
+          commands:
+            - checkout
+            - sem-version node 20
+            - node bin/asciidoc-link-validator.js --root . --out link-report.json --fail

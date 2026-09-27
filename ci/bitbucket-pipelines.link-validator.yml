@@ -1,0 +1,13 @@
+# Bitbucket Pipelines example — merge into bitbucket-pipelines.yml
+image: node:20
+
+pipelines:
+  default:
+    - step:
+        name: AsciiDoc Link Validator
+        script:
+          - corepack enable
+          - if [ -f package.json ]; then pnpm install || npm install; fi
+          - node bin/asciidoc-link-validator.js --root . --out link-report.json --fail
+        artifacts:
+          - link-report.json

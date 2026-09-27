@@ -1,0 +1,118 @@
+= AsciiDoc Link Validator
+:description: Library and CLI that validate outbound http(s) links in AsciiDoc and HTML, with suppressions, baseline deltas, and multi-CI templates. No Antora dependency.
+:page-audience: AsciiDoc authors and CI maintainers who need broken-link detection without a full site generate
+:page-usage-context: Run `asciidoc-link-validator` against `.adoc` trees and/or built HTML
+:page-orig-author: Ryan Johnson
+:page-last-author: Cursor agent on behalf of Ryan Johnson
+:page-last-edited: 2026-09-27
+
+ifdef::env-github[]
+++++
+<div align="center">
+
+<a href="https://github.com/antora-supplemental/asciidoc-link-validator/graphs/contributors"><img src="https://img.shields.io/github/contributors/antora-supplemental/asciidoc-link-validator?style=for-the-badge" alt="Contributors"></a>
+<a href="https://github.com/antora-supplemental/asciidoc-link-validator/network/members"><img src="https://img.shields.io/github/forks/antora-supplemental/asciidoc-link-validator?style=for-the-badge" alt="Forks"></a>
+<a href="https://github.com/antora-supplemental/asciidoc-link-validator/stargazers"><img src="https://img.shields.io/github/stars/antora-supplemental/asciidoc-link-validator?style=for-the-badge" alt="Stargazers"></a>
+<a href="https://github.com/antora-supplemental/asciidoc-link-validator/issues"><img src="https://img.shields.io/github/issues/antora-supplemental/asciidoc-link-validator?style=for-the-badge" alt="Issues"></a>
+<a href="https://github.com/antora-supplemental/asciidoc-link-validator/blob/main/LICENSE"><img src="https://img.shields.io/github/license/antora-supplemental/asciidoc-link-validator?style=for-the-badge" alt="MIT License"></a>
+
+</div>
+++++
+endif::[]
+
+**AsciiDoc Link Validator** finds outbound `http`/`https` URLs in `.adoc` sources (`link:`, bare URLs, remote `image::` / `video::`) and in HTML, checks them with HEAD→GET, and produces JSON / Markdown / plain-text reports with optional baseline deltas (`newlyInvalid`, `stillInvalid`, `recovered`).
+
+For Antora sites (WARN logs, triage page, footer partial), use the companion package https://github.com/antora-supplemental/link-validator[`@antora-supplemental/link-validator`].
+
+Docs hub (when wired): https://docs.antora-supplemental.org/asciidoc-link-validator/[Explore the docs →]
+
+== Install
+
+Primary (GitHub SemVer URL — recommended for Antora / pnpm):
+
+[source,bash]
+----
+pnpm add -D github:antora-supplemental/asciidoc-link-validator#v0.1.0
+----
+
+Alternate (track main):
+
+[source,bash]
+----
+pnpm add -D github:antora-supplemental/asciidoc-link-validator#main
+----
+
+Optional npm (not required): `pnpm add -D @antora-supplemental/asciidoc-link-validator` if/when published later.
+
+Consumer repos should carry the GitHub topic `asciidoc-link-validator`.
+
+== CLI
+
+[source,bash]
+----
+# From a checkout:
+node bin/asciidoc-link-validator.js --root ./docs --format md
+
+# After install:
+pnpm exec asciidoc-link-validator --html ./build --baseline .link-baseline.json --fail --out report.json
+----
+
+Flags: `--root`, `--html`, `--suppressions`, `--baseline`, `--write-baseline`, `--out`, `--fail`, `--concurrency`, `--timeout`, `--format json|md|text`, `--no-images`, `--no-soft-fail-403`.
+
+Exit code `1` when `--fail` and invalid links remain.
+
+== Library
+
+[source,js]
+----
+const {
+  extractUrlsFromAsciiDoc,
+  checkUrls,
+  loadSuppressions,
+  filterSuppressed,
+  buildReport,
+  readBaseline,
+} = require('@antora-supplemental/asciidoc-link-validator')
+----
+
+== Suppressions
+
+Copy link:.antora-link-suppressions.example.yml[] to `.antora-link-suppressions.yml`:
+
+[source,yaml]
+----
+suppressions:
+  - url: https://example.com/known-down
+    reason: Staging stub
+    expires: 2027-01-01
+  - glob: https://legacy.example.com/*
+    reason: Decommissioned host
+  - regex: '^https://intranet\\.example\\.com/'
+    reason: VPN-only
+----
+
+== CI matrix
+
+All providers invoke the same CLI. From a checkout or after install via GitHub URL:
+
+[source,bash]
+----
+node bin/asciidoc-link-validator.js --root . --fail --out link-report.json
+# or: pnpm exec asciidoc-link-validator --root . --fail --out link-report.json
+----
+
+See `ci/` for GitHub Actions (`action.yml` + `.github/workflows`), GitLab, Azure, Bitbucket, CircleCI, Jenkins, Woodpecker, Gitea, and stubs for Buildkite, Travis, Drone, Codefresh, Semaphore, TeamCity, Forgejo.
+
+== Built With
+
+* *Runtime:* Node.js 18+ (`fetch`)
+* *Packaging:* pnpm, MIT license
+* *Companion:* https://github.com/antora-supplemental/link-validator[link-validator] (Antora extension)
+
+== License
+
+MIT — see link:LICENSE[].
+
+== Contact
+
+https://github.com/AMDphreak[Ryan Johnson] · support@devcentr.org

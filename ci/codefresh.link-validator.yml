@@ -1,0 +1,9 @@
+# Codefresh stub
+version: '1.0'
+stages: [validate]
+steps:
+  link_validator:
+    stage: validate
+    image: node:20
+    commands:
+      - node bin/asciidoc-link-validator.js --root . --out link-report.json --fail

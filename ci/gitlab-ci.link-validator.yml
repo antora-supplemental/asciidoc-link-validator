@@ -1,0 +1,25 @@
+# Include from .gitlab-ci.yml:
+#   include:
+#     - local: ci/gitlab-ci.link-validator.yml
+# Or paste the job below.
+
+link-validator:
+  image: node:20-bookworm
+  stage: test
+  script:
+    - corepack enable
+    - |
+      if [ -f package.json ]; then
+        pnpm install || npm install
+      fi
+    - node bin/asciidoc-link-validator.js --root . --out link-report.json --fail
+    # After publish: pnpm dlx @antora-supplemental/asciidoc-link-validator --root . --fail
+  artifacts:
+    when: always
+    paths:
+      - link-report.json
+    reports:
+      # JUnit not emitted by default; attach JSON for download
+      dotenv: []
+  rules:
+    - if: $CI_PIPELINE_SOURCE

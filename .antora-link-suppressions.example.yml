@@ -1,0 +1,11 @@
+﻿# Example suppressions for @antora-supplemental/asciidoc-link-validator
+# Copy to .antora-link-suppressions.yml (or pass --suppressions).
+
+suppressions:
+  - url: https://example.com/known-down
+    reason: Staging stub; tracked in OPS-123
+    expires: 2027-01-01
+  - glob: https://legacy.example.com/*
+    reason: Legacy host decommissioned; redirects pending
+  - regex: '^https://intranet\.example\.com/'
+    reason: Requires VPN; soft-ignore in public CI

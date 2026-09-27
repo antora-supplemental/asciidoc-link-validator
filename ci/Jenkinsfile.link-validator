@@ -1,0 +1,20 @@
+// Jenkins Declarative Pipeline snippet for AsciiDoc Link Validator
+pipeline {
+  agent any
+  stages {
+    stage('AsciiDoc Link Validator') {
+      steps {
+        sh '''
+          corepack enable || true
+          if [ -f package.json ]; then pnpm install || npm install; fi
+          node bin/asciidoc-link-validator.js --root . --out link-report.json --fail
+        '''
+      }
+    }
+  }
+  post {
+    always {
+      archiveArtifacts artifacts: 'link-report.json', allowEmptyArchive: true
+    }
+  }
+}

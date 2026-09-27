@@ -1,0 +1,24 @@
+# Azure Pipelines template / example job for AsciiDoc Link Validator
+trigger:
+  - main
+  - master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+
+  - script: |
+      corepack enable
+      if [ -f package.json ]; then pnpm install || npm install; fi
+      node bin/asciidoc-link-validator.js --root . --out link-report.json --fail
+    displayName: AsciiDoc Link Validator
+
+  - task: PublishPipelineArtifact@1
+    condition: always()
+    inputs:
+      targetPath: link-report.json
+      artifact: link-validator-report

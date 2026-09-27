@@ -1,0 +1,19 @@
+# Gitea Actions example (compatible with many Actions workflows)
+name: AsciiDoc Link Validator
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: |
+          corepack enable
+          if [ -f package.json ]; then pnpm install || npm install; fi
+          node bin/asciidoc-link-validator.js --root . --out link-report.json --fail

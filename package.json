@@ -1,0 +1,50 @@
+{
+  "name": "@antora-supplemental/asciidoc-link-validator",
+  "version": "0.1.0",
+  "description": "CLI + library: validate outbound http(s) links in AsciiDoc and HTML (suppressions, baseline deltas, reports). No Antora dependency.",
+  "license": "MIT",
+  "author": "Ryan Johnson (https://github.com/AMDphreak)",
+  "keywords": [
+    "asciidoc",
+    "asciidoctor",
+    "link-checker",
+    "link-validator",
+    "ci"
+  ],
+  "homepage": "https://github.com/antora-supplemental/asciidoc-link-validator",
+  "bugs": {
+    "url": "https://github.com/antora-supplemental/asciidoc-link-validator/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antora-supplemental/asciidoc-link-validator.git"
+  },
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "asciidoc-link-validator": "bin/asciidoc-link-validator.js"
+  },
+  "files": [
+    "bin/**/*",
+    "lib/**/*",
+    "ci/**/*",
+    "action.yml",
+    "README.adoc",
+    "CHANGELOG.adoc",
+    "LICENSE",
+    ".antora-link-suppressions.example.yml"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "packageManager": "pnpm@10.33.0"
+}

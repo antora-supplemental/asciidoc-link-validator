@@ -1,0 +1,5 @@
+# Travis CI stub
+language: node_js
+node_js: '20'
+script:
+  - node bin/asciidoc-link-validator.js --root . --out link-report.json --fail

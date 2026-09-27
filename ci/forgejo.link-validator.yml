@@ -1,0 +1,12 @@
+# Forgejo Actions stub (Actions-compatible)
+name: AsciiDoc Link Validator
+on: [push, pull_request]
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node bin/asciidoc-link-validator.js --root . --out link-report.json --fail
