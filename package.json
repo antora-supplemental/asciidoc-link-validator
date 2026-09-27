@@ -35,7 +35,8 @@
     "README.adoc",
     "CHANGELOG.adoc",
     "LICENSE",
-    ".antora-link-suppressions.example.yml"
+    ".antora-link-suppressions.example.yml",
+    "DESIGN.adoc"
   ],
   "engines": {
     "node": ">=18"

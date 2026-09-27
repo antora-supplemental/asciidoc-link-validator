@@ -103,6 +103,37 @@ node bin/asciidoc-link-validator.js --root . --fail --out link-report.json
 
 See `ci/` for GitHub Actions (`action.yml` + `.github/workflows`), GitLab, Azure, Bitbucket, CircleCI, Jenkins, Woodpecker, Gitea, and stubs for Buildkite, Travis, Drone, Codefresh, Semaphore, TeamCity, Forgejo.
 
+
+== Report groupings
+
+`buildReport` attaches a `groupings` object used by the Antora triage UI (and available to CLI JSON consumers):
+
+* `byDestination` — one bucket per destination URL (rebrand / shared-target clusters)
+* `bySourcePage` — one bucket per source page
+* `byStatus` — `404` / `4xx` / `5xx` / `timeout` / `dns` / `ssl` / `forbidden` / …
+* `byHost` — hostname buckets
+
+**Default:** `byDestination` when findings cluster on shared hosts (any host with ≥3 findings, or ≥3 findings with the top host covering ≥40%); otherwise `bySourcePage`. See `lib/groupings.js` and link:DESIGN.adoc[].
+
+== Triage actions (shared helper)
+
+`lib/triage-actions.js` builds mailto (percent-encoded subject/body), copy payloads, and optional **CI trigger** config:
+
+[source,js]
+----
+{
+  enabled: true,
+  provider: 'github', // or 'gitlab'
+  dispatchUrl: 'https://example.com/proxy/dispatch', // public URL or thin proxy — NEVER embed tokens
+  statusUrl: 'https://example.com/proxy/status',     // optional poll endpoint
+  ref: 'main',
+  label: 'Check now (CI)',
+  pollIntervalMs: 5000
+}
+----
+
+The generated triage HTML stores only that public config. Mail clients get a pre-encoded `mailto:`; the UI also keeps a **Copy report** button.
+
 == Built With
 
 * *Runtime:* Node.js 18+ (`fetch`)
