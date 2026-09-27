@@ -8,6 +8,9 @@ const { checkUrls } = require('../lib/check.js')
 const { loadSuppressions, filterSuppressed } = require('../lib/suppressions.js')
 const { buildReport, formatMarkdown, formatTextEmail } = require('../lib/report.js')
 const { readBaseline, writeBaseline } = require('../lib/baseline.js')
+const { createProgress } = require('../lib/progress.js')
+
+const TOOL = 'asciidoc-link-validator'
 
 const HELP = `Usage: asciidoc-link-validator [options]
 
@@ -99,13 +102,18 @@ async function main (argv = process.argv.slice(2)) {
     return 1
   }
 
+  const progress = createProgress({ id: TOOL, stream: process.stderr })
+  progress.starting('starting outbound link check')
+  progress.enumStart('files')
+
   const entries = scanFilesystem({
     root: opts.root,
     htmlRoot: opts.html,
     checkImages: opts.checkImages,
+    onFile (n) { progress.enumTick(n) },
   })
 
-  process.stderr.write(`Found ${entries.length} unique URL(s)\n`)
+  progress.enumDone(undefined, entries.length + ' links')
 
   const rules = loadSuppressions(opts.suppressions || '.antora-link-suppressions.yml')
   const checked = await checkUrls(entries, {
@@ -113,9 +121,7 @@ async function main (argv = process.argv.slice(2)) {
     timeoutMs: opts.timeoutMs,
     softFail403: opts.softFail403,
     onProgress (done, total) {
-      if (done === total || done % 10 === 0) {
-        process.stderr.write(`Checked ${done}/${total}\n`)
-      }
+      progress.tick(done, total)
     },
   })
 
@@ -132,16 +138,22 @@ async function main (argv = process.argv.slice(2)) {
     },
   })
 
+  progress.done(
+    'done (invalid=' + report.summary.invalid +
+    ', newly=' + report.summary.newlyInvalid +
+    ', links=' + entries.length + ')'
+  )
+
   if (opts.out) {
     const abs = path.resolve(opts.out)
     fs.mkdirSync(path.dirname(abs), { recursive: true })
     fs.writeFileSync(abs, JSON.stringify(report, null, 2) + '\n', 'utf8')
-    process.stderr.write(`Wrote ${abs}\n`)
+    process.stderr.write(TOOL + ': Wrote ' + abs + '\n')
   }
 
   if (opts.writeBaseline && opts.baseline) {
     writeBaseline(opts.baseline, report)
-    process.stderr.write(`Wrote baseline ${opts.baseline}\n`)
+    process.stderr.write(TOOL + ': Wrote baseline ' + opts.baseline + '\n')
   }
 
   let formatted
@@ -151,12 +163,10 @@ async function main (argv = process.argv.slice(2)) {
 
   if (!opts.out || opts.format !== 'json') {
     process.stdout.write(formatted.endsWith('\n') ? formatted : formatted + '\n')
-  } else if (opts.format === 'json' && opts.out) {
-    // already written
   }
 
   if (opts.fail && report.invalid.length) {
-    process.stderr.write(`${report.invalid.length} invalid link(s)\n`)
+    process.stderr.write(TOOL + ': ' + report.invalid.length + ' invalid link(s)\n')
     return 1
   }
   return 0

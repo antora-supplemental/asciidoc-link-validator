@@ -1,6 +1,6 @@
 {
   "name": "@antora-supplemental/asciidoc-link-validator",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "CLI + library: validate outbound http(s) links in AsciiDoc and HTML (suppressions, baseline deltas, reports). No Antora dependency.",
   "license": "MIT",
   "author": "Ryan Johnson (https://github.com/AMDphreak)",
