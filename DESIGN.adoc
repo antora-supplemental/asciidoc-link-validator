@@ -1,0 +1,77 @@
+= Design notes: link tooling family
+:page-orig-author: Ryan Johnson
+:page-last-edited: 2026-09-27
+
+This document records packaging and future-work decisions for the Antora Supplemental link tooling family.
+It is **not** a commitment to ship every idea in the next tag.
+
+== Package split (locked)
+
+[cols="1,2,2"]
+|===
+|Package |Role |Notes
+
+|https://github.com/antora-supplemental/asciidoc-link-validator[`asciidoc-link-validator`]
+|Core CLI + library
+|Extract, check, suppressions, baseline deltas, report JSON/MD, triage HTML builder, groupings, shared triage action helpers. **No Antora dependency.**
+
+|https://github.com/antora-supplemental/link-validator[`link-validator`]
+|Antora extension
+|Hooks `sitePublished`, WARN logs, embeds triage UI, playbook config (`reportEmail`, `ciTrigger`, grouping override).
+
+|***Link-inator*** (future; informal Doofenshmirtz name)
+|Separate third package
+|Click-time validity affordances in rendered pages (muted validity colors + sharp border), archive.org / Wayback button, status text. **Not built in this pass** — see <<_link_inator_sketch>>.
+|===
+
+CI-trigger + mailto stay **one shared triage helper** (config modes), not separate repos. See `lib/triage-actions.js`.
+
+== Report groupings
+
+Triage JSON exposes `groupings`:
+
+* `byDestination` — cluster rebrands / shared dead URLs
+* `bySourcePage` — page-centric repair
+* `byStatus` — `404` / `4xx` / `5xx` / `timeout` / `dns` / `ssl` / `forbidden` / …
+* `byHost` — hostname buckets
+
+**Default heuristic:** prefer `byDestination` when many findings share hosts (rebrand / outage clusters: any host with ≥3 findings, or ≥3 findings with top host covering ≥40%); otherwise `bySourcePage`. Override with playbook `groupingDefault` or the triage UI select.
+
+== Shared triage actions
+
+Preferred:: **CI trigger** button — `workflow_dispatch` (GitHub) or equivalent (GitLab) via a *public* `dispatchUrl` or thin proxy. The static site must **never** embed tokens. Poll `statusUrl` or `report.json` for write-back.
+
+Fallback:: **mailto** with percent-encoded subject/body + **Copy report** (JSON). Both always available when `reportEmail` is set (default `support@devcentr.org`).
+
+== Link-inator sketch
+
+Informal name:: Link-inator (Doofenshmirtz energy; package id likely `linkinator` / `@antora-supplemental/linkinator`).
+
+Intent:: At **click / hover time** in the published site, hint whether an outbound link still looks valid, without replacing build-time validation.
+
+Affordances (planned)::
+
+* Muted validity colors + **sharp** border (not soft/glow) on the link chrome
+* Markup as `span`/`div` wrappers around anchors (theme-friendly hooks)
+* **archive.org** icon button → Wayback URL for the destination
+* Short status text (ok / 4xx / unknown / unchecked)
+
+Lifecycle:: UI bolt-on (chassis metaphor: bolt-on over body kit). Likely `sitePublished` asset inject + small browser script; optional Asciidoctor postprocessor later. Self-register metadata: purpose `link-ux`, layer `bolt-on`, pipeline vs asciidoctor: `pipeline` (+ optional asciidoctor), hooks `sitePublished`.
+
+Out of scope for Link-inator:: Build-time crawling (stays in asciidoc-link-validator / link-validator).
+
+== Extension registry metadata
+
+Extensions should export `antora-registry.md` (and later machine-readable fields) for the antora-supplemental registry / extension-lister:
+
+* `purpose` — short capability tag (e.g. `link-validation`)
+* `layer` / chassis metaphor — `engine` | `chassis` | `body-kit` | `paint` | `bolt-on`
+* `pipeline` vs `asciidoctor` — where it plugs in
+* `lifecycleHooks` — e.g. `sitePublished`, `contentClassified`
+* `processorSubtypes` — when Asciidoctor: tree/inline/block/…
+
+See also https://github.com/antora-supplemental/antora-ui-chassis[antora-ui-chassis] layering docs.
+
+== Related maint tools (stubs elsewhere)
+
+Orphan include/attrib finder, nav drift, stale page, playbook pin auditor, shared triage UX kit, external deep-link contract tests — tracked as separate hive packages / READMEs; not implemented here.
