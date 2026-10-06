@@ -20,3 +20,5 @@
 !DESIGN.adoc
 !examples/
 !examples/**
+!/.editorconfig
+!/.gitattributes
