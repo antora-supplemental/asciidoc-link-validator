@@ -32,7 +32,7 @@ Primary (GitHub SemVer URL — recommended for Antora / pnpm):
 
 [source,bash]
 ----
-pnpm add -D github:antora-supplemental/asciidoc-link-validator#v0.2.0
+pnpm add -D github:antora-supplemental/asciidoc-link-validator#v0.2.2
 ----
 
 Alternate (track main):
@@ -57,9 +57,26 @@ node bin/asciidoc-link-validator.js --root ./docs --format md
 pnpm exec asciidoc-link-validator --html ./build --baseline .link-baseline.json --fail --out report.json
 ----
 
-Flags: `--root`, `--html`, `--suppressions`, `--baseline`, `--write-baseline`, `--out`, `--fail`, `--concurrency`, `--timeout`, `--format json|md|text`, `--no-images`, `--no-soft-fail-403`.
+Flags: `--root`, `--html`, `--suppressions`, `--baseline`, `--write-baseline`, `--out`, `--fail`, `--concurrency`, `--timeout`, `--format json|md|text`, `--no-images`, `--no-soft-fail-403`, `--cache`, `--cache-max-age`, `--cache-bypass`, `--invalidate-sources`, `--invalidate-urls`.
 
 Exit code `1` when `--fail` and invalid links remain.
+
+== GitHub rate limits and cache (CI)
+
+Assumptions baked into per-host defaults (`lib/host-policy.js`):
+
+* *Unauthenticated* `github.com` / `raw.githubusercontent.com` web HEAD/GET: treat shared egress as ~60 requests/hour → concurrency **1**, **≥1100 ms** spacing between starts.
+* *Authenticated* (`GITHUB_TOKEN` or `GH_TOKEN` in env only — never commit tokens): REST allows thousands/hour; web probes use concurrency **5**, **200 ms** spacing.
+* `api.github.com` uses GitHub REST Accept header when a token is present.
+
+On **429**, the checker reads `Retry-After`, retries silently (no warn logs), and only after exhaustion classifies `rate-limited` — by default in report `deferred`, not `invalid` (`reportRateLimited: false`).
+
+**File cache** (default path `.link-check-cache.json`): skip network when an entry is fresh (`cacheMaxAgeMs`, default 24h for GitHub web). Nightly jobs should pass `cacheBypass: true` or `LINK_VALIDATOR_CACHE_BYPASS=true`.
+
+**Surgical invalidation** (force live checks for stale cache entries):
+
+* Playbook: `invalidateSources`, `invalidateUrls`
+* Env: `LINK_VALIDATOR_INVALIDATE_SOURCES`, `LINK_VALIDATOR_INVALIDATE_URLS`
 
 == Library
 

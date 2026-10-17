@@ -11,8 +11,9 @@ describe('classifyStatus', () => {
     assert.equal(classifyStatus(301), 'ok')
     assert.equal(classifyStatus(404), '404')
     assert.equal(classifyStatus(403), 'forbidden')
+    assert.equal(classifyStatus(429), 'rate-limited')
     assert.equal(classifyStatus(null, 'ENOTFOUND'), 'dns')
-    assert.equal(classifyStatus(null, 'timeout'), 'timeout')
+    assert.equal(classifyStatus(null, 'timeout'), 'unreachable')
   })
 })
 

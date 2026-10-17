@@ -32,6 +32,11 @@ Options:
   --no-images            Skip image/video/audio http(s) URLs
   --soft-fail-403        Treat 403 as soft-ok (default)
   --no-soft-fail-403     Treat 403 as invalid
+  --cache <file>         Enable file cache at path (default .link-check-cache.json)
+  --cache-max-age <ms>   Cache TTL in ms (host-specific default when omitted)
+  --cache-bypass         Ignore cache (full live refresh)
+  --invalidate-sources <list>  Comma/newline source pages to force live check
+  --invalidate-urls <list>     Comma/newline URLs to force live check
   -h, --help             Show this help
 
 Examples:
@@ -54,6 +59,11 @@ function parseArgs (argv) {
     format: 'json',
     checkImages: true,
     softFail403: true,
+    cachePath: null,
+    cacheMaxAgeMs: null,
+    cacheBypass: false,
+    invalidateSources: [],
+    invalidateUrls: [],
   }
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]
@@ -73,6 +83,11 @@ function parseArgs (argv) {
       case '--no-images': opts.checkImages = false; break
       case '--soft-fail-403': opts.softFail403 = true; break
       case '--no-soft-fail-403': opts.softFail403 = false; break
+      case '--cache': opts.cachePath = next() || '.link-check-cache.json'; break
+      case '--cache-max-age': opts.cacheMaxAgeMs = Number(next()) || null; break
+      case '--cache-bypass': opts.cacheBypass = true; break
+      case '--invalidate-sources': opts.invalidateSources.push(...String(next() || '').split(/[\n,]+/)); break
+      case '--invalidate-urls': opts.invalidateUrls.push(...String(next() || '').split(/[\n,]+/)); break
       default:
         if (a.startsWith('-')) {
           throw new Error(`Unknown option: ${a}`)
@@ -120,6 +135,12 @@ async function main (argv = process.argv.slice(2)) {
     concurrency: opts.concurrency,
     timeoutMs: opts.timeoutMs,
     softFail403: opts.softFail403,
+    cacheEnabled: Boolean(opts.cachePath),
+    cachePath: opts.cachePath ? path.resolve(opts.cachePath) : null,
+    cacheMaxAgeMs: opts.cacheMaxAgeMs,
+    cacheBypass: opts.cacheBypass,
+    invalidateSources: opts.invalidateSources,
+    invalidateUrls: opts.invalidateUrls,
     onProgress (done, total) {
       progress.tick(done, total)
     },
