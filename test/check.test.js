@@ -20,7 +20,10 @@ describe('classifyStatus', () => {
 describe('checkUrl (local mock server)', () => {
   it('detects 404 and 200', async () => {
     const server = http.createServer((req, res) => {
-      if (req.url === '/ok') {
+      if (req.url === '/head-missing') {
+        res.writeHead(req.method === 'HEAD' ? 404 : 200)
+        res.end('get works')
+      } else if (req.url === '/ok') {
         res.writeHead(200, { 'content-type': 'text/plain' })
         res.end('ok')
       } else if (req.url === '/missing') {
@@ -41,6 +44,10 @@ describe('checkUrl (local mock server)', () => {
       const ok = await checkUrl(`${base}/ok`, { timeoutMs: 2000, retries: 0 })
       assert.equal(ok.ok, true)
       assert.equal(ok.classification, 'ok')
+
+      const headMissing = await checkUrl(`${base}/head-missing`, { timeoutMs: 2000, retries: 0 })
+      assert.equal(headMissing.ok, true, 'confirm a HEAD 404 with GET before reporting a dead page')
+      assert.equal(headMissing.status, 200)
 
       const missing = await checkUrl(`${base}/missing`, { timeoutMs: 2000, retries: 0 })
       assert.equal(missing.ok, false)
