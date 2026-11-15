@@ -1,5 +1,9 @@
 = Changelog
 
+== 2026-11-15
+
+* The README contents list now sits under the header inside the expander.
+
 == Unreleased
 
 == 0.2.3 - 2026-11-07

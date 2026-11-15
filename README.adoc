@@ -5,6 +5,9 @@
 :page-orig-author: Ryan Johnson
 :page-last-author: Cursor agent on behalf of Ryan Johnson
 :page-last-edited: 2026-09-27
+:toc: macro
+:toc-title:
+:toclevels: 2
 
 ifdef::env-github[]
 ++++
@@ -19,6 +22,15 @@ ifdef::env-github[]
 </div>
 ++++
 endif::[]
+
+++++
+<details>
+<summary>Table of Contents</summary>
+++++
+toc::[]
+++++
+</details>
+++++
 
 **AsciiDoc Link Validator** finds outbound `http`/`https` URLs in `.adoc` sources (`link:`, bare URLs, remote `image::` / `video::`) and in HTML, checks them with HEAD→GET, and produces JSON / Markdown / plain-text reports with optional baseline deltas (`newlyInvalid`, `stillInvalid`, `recovered`).
 
